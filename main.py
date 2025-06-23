@@ -1,4 +1,4 @@
-from langchain_ollama.llms import OllamaLLM
+from langchain_ollama.llms import Ollama
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from vector import retriever
@@ -18,7 +18,7 @@ with st.sidebar:
     temperature = st.slider("Temperature", 0.0, 1.0, 0.7, 0.05)
 
     
-llm = OllamaLLM(model=model_name, temperature=0.7, streaming=True)
+llm = Ollama(model=model_name, temperature=0.7, streaming=True)
 
 template = """
     You are an expert in answering questions about a pizza restaurant.
