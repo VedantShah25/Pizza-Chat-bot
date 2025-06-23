@@ -1,6 +1,6 @@
 from langchain_community.embeddings import OllamaEmbeddings
 from langchain_core.documents import Document
-from langchain_chroma import Chroma
+from langchain_community.vectorstores import FAISS
 
 import os
 import pandas as pd
@@ -28,11 +28,12 @@ if add_documents:
         ids.append(str(i))
         documents.append(document)
         
-vector_store = Chroma(
-    collection_name="restaurant_reviews",
-    embedding_function=embeddings,
-    persist_directory=db_location
+vector_store = FAISS.load_local(
+    db_location,           # same folder you used for save_local
+    embeddings,
+    allow_dangerous_deserialization=True     # required if running on PyPI wheels
 )
+
 
 if add_documents:
     vector_store.add_documents(documents=documents, ids=ids)
