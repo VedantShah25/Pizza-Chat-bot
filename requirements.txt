@@ -1,6 +1,7 @@
 streamlit
 langchain>=0.2.0
 langchain-community
+chromadb
+ollama
 python-dotenv
-ollama  
-langchain-chroma
+protobuf<4.24.0
