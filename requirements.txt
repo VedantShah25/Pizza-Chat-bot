@@ -3,3 +3,4 @@ langchain>=0.2.0
 langchain-community
 python-dotenv
 ollama  
+langchain-chroma
