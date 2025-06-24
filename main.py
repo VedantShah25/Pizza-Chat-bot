@@ -15,10 +15,10 @@ with st.sidebar:
         ["llama3.2", "llama3.1", "llama3.0", "mistral"],
         index=0
     )
-    temperature = st.slider("Temperature", 0.0, 1.0, 0.7, 0.05)
+    temp = st.slider("Temperature", 0.0, 1.0, 0.7, 0.05)
 
     
-llm = Ollama(model=model_name, temperature=0.7)
+llm = Ollama(model=model_name, temperature=temp)
 
 template = """
     You are an expert in answering questions about a pizza restaurant.
