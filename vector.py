@@ -5,42 +5,44 @@ from langchain_community.vectorstores import FAISS
 import os
 import pandas as pd
 
-df = pd.read_csv("realistic_restaurant_reviews.csv")
+db_location = "FAISS_langchain_db"
+index_file = os.path.join(db_location, "index.faiss")
+
 embeddings = OllamaEmbeddings(model="mxbai-embed-large")
+df = pd.read_csv("realistic_restaurant_reviews.csv")
 
-db_location = "./chrome_langchain_db"
-add_documents = not os.path.exists(db_location)
+# Prepare documents always — needed if FAISS is missing
+documents = []
+ids = []
 
-if add_documents:
-    documents = []
-    ids = []
-    
-    for i, row in df.iterrows():
-        document = Document(
-            page_content=row['Title'] + "\n" + row['Review'],
-            metadata={
-                "rating": row['Rating'],
-                "date": row['Date'],
-                "id": i
-            },
-            id=str(i)
-        )
-        ids.append(str(i))
-        documents.append(document)
-        
-vector_store = FAISS.load_local(
-    db_location,           # same folder you used for save_local
-    embeddings,
-    allow_dangerous_deserialization=True     # required if running on PyPI wheels
-)
+for i, row in df.iterrows():
+    doc = Document(
+        page_content=row["Title"] + "\n" + row["Review"],
+        metadata={
+            "rating": row["Rating"],
+            "date": row["Date"],
+            "id": i,
+        },
+        id=str(i)
+    )
+    documents.append(doc)
+    ids.append(str(i))
 
+# Load or create FAISS index
+if os.path.exists(index_file):
+    vector_store = FAISS.load_local(
+        db_location,
+        embeddings,
+        allow_dangerous_deserialization=True
+    )
+else:
+    print("⚠️ FAISS index not found, creating a new one.")
+    vector_store = FAISS.from_documents(documents, embeddings)
+    vector_store.save_local(db_location)
 
-if add_documents:
-    vector_store.add_documents(documents=documents, ids=ids)
-    
-retriever = vector_store.as_retriever(
-    search_kwargs={
-        "k": 5
-    }    
-)
-    
+    # Add extra safeguard: if index was created empty
+    if not vector_store.index.ntotal:
+        vector_store.add_documents(documents=documents, ids=ids)
+
+# Export retriever
+retriever = vector_store.as_retriever(search_kwargs={"k": 5})

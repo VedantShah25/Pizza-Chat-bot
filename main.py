@@ -18,7 +18,7 @@ with st.sidebar:
     temperature = st.slider("Temperature", 0.0, 1.0, 0.7, 0.05)
 
     
-llm = Ollama(model=model_name, temperature=0.7, streaming=True)
+llm = Ollama(model=model_name, temperature=0.7)
 
 template = """
     You are an expert in answering questions about a pizza restaurant.
